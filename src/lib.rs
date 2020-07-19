@@ -28,10 +28,6 @@ impl <T: PartialOrd> Tree<T> {
         self.size
     }
 
-    pub fn root(&self) -> Option<&TreeNode<T>> {
-        self.root.as_ref()
-    }
-
     pub fn in_order_iter(&self) -> InOrderIterator<T> {
         InOrderIterator::new(&self)
     } 
@@ -43,18 +39,18 @@ impl <T: PartialOrd> Tree<T> {
 }
 
 #[derive(Debug)]
-pub struct TreeNode<T: PartialOrd> {
+struct TreeNode<T: PartialOrd> {
     item: T,
     left: Option<Box<TreeNode<T>>>,
     right: Option<Box<TreeNode<T>>>,
 }
 
 impl<T: PartialOrd> TreeNode<T> {
-    pub fn new(item: T) -> TreeNode<T> {
+    fn new(item: T) -> TreeNode<T> {
         TreeNode{ item: item, left: None, right: None }
     }
 
-    pub fn add(&mut self, item: T) {
+    fn add(&mut self, item: T) {
         if self.item > item {
             match &mut self.left {
                 None => self.left = Some(Box::new(TreeNode::new(item))),
@@ -68,11 +64,11 @@ impl<T: PartialOrd> TreeNode<T> {
         }
     }
 
-    pub fn item(&self) -> &T {
+    fn item(&self) -> &T {
         &self.item
     } 
 
-    pub fn contains(&self, item: &T) -> bool {
+    fn contains(&self, item: &T) -> bool {
         if self.item == *item {
             true
         } else if self.item > *item {

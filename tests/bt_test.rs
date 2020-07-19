@@ -4,7 +4,6 @@ use binary_tree::Tree;
 fn test_new() {
     let t: Tree<i32> = Tree::new();
     assert_eq!(t.size(), 0);
-    assert!(t.root().is_none());
 }
 
 #[test]
@@ -13,7 +12,7 @@ fn test_add_once() {
     let item = 0;
     t.add(item);
     assert_eq!(t.size(), 1);
-    assert_eq!(*t.root().unwrap().item(), item);
+    assert!(t.contains(&item));
 }
 
 #[test]
