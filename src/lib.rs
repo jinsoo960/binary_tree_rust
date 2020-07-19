@@ -1,5 +1,20 @@
 /// Generic binary search tree
 /// Items are owned by the tree
+///
+/// # Examples
+/// 
+/// ```
+/// use binary_tree::Tree;
+///
+/// let mut t: Tree<i32> = Tree::new();
+/// let items = vec![5, 1, 3, 4, 6, 2, 9];
+/// for i in items.iter() {
+///    t.add(*i);
+/// }
+/// let iter_result: Vec<i32> = t.in_order_iter().collect();
+///
+/// assert_eq!(iter_result, vec![1, 2, 3, 4, 5, 6, 9]);
+/// ```
 #[derive(Debug)]
 pub struct Tree<T: PartialOrd> {
     root: Option<TreeNode<T>>,
