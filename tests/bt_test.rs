@@ -31,7 +31,20 @@ fn test_add() {
 
 
 #[test]
-fn test_in_order_iter() {
+fn test_pre_order_iter() {
+    let mut t: Tree<i32> = Tree::new();
+    let items = vec![5, 1, 3, 4, 6, 2, 9];
+    for i in items.iter() {
+        t.add(*i);
+    }
+
+    let iter_result: Vec<i32> = t.pre_order_iter().collect();
+
+    assert_eq!(iter_result, vec![5, 1, 3, 2, 4, 6, 9]);
+}
+
+#[test]
+fn test_in_ord_iter() {
     let mut t: Tree<i32> = Tree::new();
     let items = vec![5, 1, 3, 4, 6, 2, 9];
     for i in items.iter() {
@@ -39,19 +52,6 @@ fn test_in_order_iter() {
     }
 
     let iter_result: Vec<i32> = t.in_order_iter().collect();
-
-    assert_eq!(iter_result, vec![5, 1, 3, 2, 4, 6, 9]);
-}
-
-#[test]
-fn test_left_iter() {
-    let mut t: Tree<i32> = Tree::new();
-    let items = vec![5, 1, 3, 4, 6, 2, 9];
-    for i in items.iter() {
-        t.add(*i);
-    }
-
-    let iter_result: Vec<i32> = t.left_iter().collect();
 
     assert_eq!(iter_result, vec![1, 2, 3, 4, 5, 6, 9]);
 }

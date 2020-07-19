@@ -1,3 +1,5 @@
+/// Generic binary search tree
+/// Items are owned by the tree
 #[derive(Debug)]
 pub struct Tree<T: PartialOrd> {
     root: Option<TreeNode<T>>,
@@ -5,10 +7,12 @@ pub struct Tree<T: PartialOrd> {
 }
 
 impl <T: PartialOrd> Tree<T> {
+    /// Create a empty tree.
     pub fn new() -> Tree<T> {
         Tree { root: None, size: 0 }
     }
 
+    /// Move the given `item` to the tree.
     pub fn add(&mut self, item: T) {
         self.size += 1;
         match &mut self.root {
@@ -17,6 +21,7 @@ impl <T: PartialOrd> Tree<T> {
         }
     }
 
+    /// Return `true` if the tree contains `item`.
     pub fn contains(&self, item: &T) -> bool {
         match &self.root {
             None => false,
@@ -24,20 +29,24 @@ impl <T: PartialOrd> Tree<T> {
         }
     }
 
+    /// Return the number of items in the tree.
     pub fn size(&self) -> usize {
         self.size
     }
 
-    pub fn in_order_iter(&self) -> InOrderIterator<T> {
-        InOrderIterator::new(&self)
+    /// Return an iterator for traversing the tree in preorder.
+    pub fn pre_order_iter(&self) -> PreOrderIterator<T> {
+        PreOrderIterator::new(&self)
     } 
 
-    pub fn left_iter(&self) -> LeftIterator<T> {
-        LeftIterator::new(&self)
+    /// Return an iterator for traversing the tree in inorder.
+    pub fn in_order_iter(&self) -> InOrderIterator<T> {
+        InOrderIterator::new(&self)
     }
 
 }
 
+/// Struct representing each node in the tree
 #[derive(Debug)]
 struct TreeNode<T: PartialOrd> {
     item: T,
@@ -46,10 +55,13 @@ struct TreeNode<T: PartialOrd> {
 }
 
 impl<T: PartialOrd> TreeNode<T> {
+    /// Constructor
     fn new(item: T) -> TreeNode<T> {
         TreeNode{ item: item, left: None, right: None }
     }
 
+    /// Add `item` with a new node in the subtree with`self`
+    /// as the root.
     fn add(&mut self, item: T) {
         if self.item > item {
             match &mut self.left {
@@ -64,10 +76,8 @@ impl<T: PartialOrd> TreeNode<T> {
         }
     }
 
-    fn item(&self) -> &T {
-        &self.item
-    } 
-
+    /// Return `true` if `item` is contained in the subtree with `self`
+    /// as the root.
     fn contains(&self, item: &T) -> bool {
         if self.item == *item {
             true
@@ -85,20 +95,22 @@ impl<T: PartialOrd> TreeNode<T> {
     }
 }
 
-pub struct InOrderIterator<'a, T: PartialOrd> {
+/// Iterator for traversing preorder
+pub struct PreOrderIterator<'a, T: PartialOrd> {
+    /// Stack for nodes to travel next
     stack: Vec<&'a TreeNode<T>>
 }
 
-impl<'a, T: PartialOrd> InOrderIterator<'a, T> {
-    fn new(t: &Tree<T>) -> InOrderIterator<T> {
+impl<'a, T: PartialOrd> PreOrderIterator<'a, T> {
+    fn new(t: &Tree<T>) -> PreOrderIterator<T> {
         match &t.root {
-            None => InOrderIterator { stack: vec![] },
-            Some(r) => InOrderIterator { stack: vec![r] }
+            None => PreOrderIterator { stack: vec![] },
+            Some(r) => PreOrderIterator { stack: vec![r] }
         }
     }
 }
 
-impl<'a, T: PartialOrd + Copy> Iterator for InOrderIterator<'a, T> {
+impl<'a, T: PartialOrd + Copy> Iterator for PreOrderIterator<'a, T> {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
@@ -121,13 +133,17 @@ impl<'a, T: PartialOrd + Copy> Iterator for InOrderIterator<'a, T> {
     }
 }
 
-pub struct LeftIterator<'a, T: PartialOrd> {
+/// Iterator for traversing inorder
+pub struct InOrderIterator<'a, T: PartialOrd> {
+    /// Stack to contain tree nodes to travel next.
+    /// The left children of the nodes in the stack
+    /// are already traveled.
     stack: Vec<&'a TreeNode<T>>
 }
 
-impl<'a, T: PartialOrd> LeftIterator<'a, T> {
-    fn new(t: &Tree<T>) -> LeftIterator<T> {
-        let mut it = LeftIterator { stack: Vec::new() };
+impl<'a, T: PartialOrd> InOrderIterator<'a, T> {
+    fn new(t: &Tree<T>) -> InOrderIterator<T> {
+        let mut it = InOrderIterator { stack: Vec::new() };
         match &t.root {
             None => {},
             Some(r) => it.add_all_left(r)
@@ -135,6 +151,7 @@ impl<'a, T: PartialOrd> LeftIterator<'a, T> {
         it
     }
 
+    /// Repeatedly add left decendants of `t`.
     fn add_all_left(&mut self, t: &'a TreeNode<T>) {
         self.stack.push(t);
         match &t.left {
@@ -145,7 +162,7 @@ impl<'a, T: PartialOrd> LeftIterator<'a, T> {
 
 }
 
-impl<'a, T: PartialOrd + Copy + std::fmt::Debug> Iterator for LeftIterator<'a, T> {
+impl<'a, T: PartialOrd + Copy + std::fmt::Debug> Iterator for InOrderIterator<'a, T> {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
@@ -154,8 +171,13 @@ impl<'a, T: PartialOrd + Copy + std::fmt::Debug> Iterator for LeftIterator<'a, T
             n => {
                 let current = self.stack[n - 1];
                 self.stack.pop();
+                // No need to check for left children since
+                // they are already added to the stack.
                 match &current.right {
                     None => {},
+                    // The left decendatns of `current.right`
+                    // get precedant over `current.right`
+                    // since they are more to the left.
                     Some(right) => self.add_all_left(&right)
                 }
                 Some(current.item)
